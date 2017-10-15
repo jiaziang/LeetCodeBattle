@@ -1,3 +1,5 @@
+import org.omg.PortableServer.POA;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class MaxIsland {
     public int maxAreaOfIsland(int[][] grid) {
         int a = grid.length;
         int b = grid[0].length;
-        int length = 0;
+        int maxLength = 0;
 
         int tmp[][] = new int[a][b];
         LinkedList<Point> linkList = new LinkedList<>();
@@ -33,27 +35,44 @@ public class MaxIsland {
                         linkList.add(rPoint);
                         tmpList.add(rPoint);
                         Point p ;
-                        length = 1;
+                        int length = 1;
                         while((p = linkList.removeFirst()) != null){
-                            int x = p.x;
-                            int y = p.y;
-                            if(grid[x][y-1] == 1 && tmp[x][y-1] != -1){
-                                length ++;
-                                Point tPoint = new Point(x, y-1);
-                                linkList.add(tPoint);
-                                tmpList.add(tPoint);
-                            }
-
+                            boolean isAdd = judge(grid, tmp, p.x, p.y-1, linkList, tmpList, a, b);
+                            length += isAdd?1:0;
+                            isAdd = judge(grid, tmp, p.x, p.y+1, linkList, tmpList, a, b);
+                            length += isAdd?1:0;
+                            isAdd = judge(grid, tmp, p.x-1, p.y, linkList, tmpList, a, b);
+                            length += isAdd?1:0;
+                            isAdd = judge(grid, tmp, p.x+1, p.y, linkList, tmpList, a, b);
+                            length += isAdd?1:0;
                         }
+                         if(length > maxLength){
+                            maxLength = length;
+                         }
+                         for(Point point :tmpList){
+                             tmp[point.x][point.y] = -1;
+                         }
+                         tmpList.clear();
+
                     }
                 }
-
-
             }
         }
 
+        return maxLength;
+    }
 
-        return length;
+    private boolean judge(int[][] grid, int[][] tmp, int x, int y, List<Point> linkList, List<Point> tmpList, int a, int b){
+        if(x > a-1 || y > b-1 || x<0 ||y <0){
+            return false;
+        }
+        if(grid[x][y] == 1 && tmp[x][y] != -1){
+            Point tPoint = new Point(x, y-1);
+            linkList.add(tPoint);
+            tmpList.add(tPoint);
+            return true;
+        }
+        return false;
     }
 
 }
